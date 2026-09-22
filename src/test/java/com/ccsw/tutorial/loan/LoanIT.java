@@ -1,5 +1,6 @@
 package com.ccsw.tutorial.loan;
 
+
 import com.ccsw.tutorial.client.model.ClientDto;
 import com.ccsw.tutorial.game.model.GameDto;
 import com.ccsw.tutorial.loan.model.LoanDto;
@@ -7,7 +8,6 @@ import com.ccsw.tutorial.loan.model.LoanSearchDto;
 import com.ccsw.tutorial.common.pagination.PageableRequest;
 import com.ccsw.tutorial.config.ResponsePage;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,7 +32,7 @@ public class LoanIT {
     public static final Long NEW_GAME_ID = 3L;
     public static final Long NEW_CLIENT_ID = 3L;
 
-    private static final int TOTAL_LOANS = 6;
+    private static final int TOTAL_LOANS = 7;
     private static final int PAGE_SIZE = 5;
 
     ParameterizedTypeReference<ResponsePage<LoanDto>> responseTypePage =
@@ -87,6 +87,7 @@ public class LoanIT {
         dto.setGame(game);
         dto.setClient(client);
         dto.setLoanDate(LocalDate.now());
+        dto.setReturnDate(LocalDate.now().plusDays(7));
 
         restClient
                 .put()
@@ -109,6 +110,33 @@ public class LoanIT {
     }
 
     @Test
+    void saveLoanWithAlreadyLoanedGameShouldFail() {
+
+        LoanDto dto = new LoanDto();
+
+        GameDto game = new GameDto();
+        game.setId(1L); // juego ya prestado en data.sql
+
+        ClientDto client = new ClientDto();
+        client.setId(3L);
+
+        dto.setGame(game);
+        dto.setClient(client);
+        dto.setLoanDate(LocalDate.of(2026, 9, 1));
+        dto.setReturnDate(LocalDate.of(2026, 9, 10));
+
+        assertThrows(HttpServerErrorException.class,
+                () -> restClient
+                        .put()
+                        .uri(SERVICE_PATH)
+                        .body(dto)
+                        .retrieve()
+                        .toBodilessEntity());
+    }
+
+
+
+    @Test
     void modifyWithExistIdShouldModifyLoan() {
 
         LoanDto dto = new LoanDto();
@@ -122,6 +150,7 @@ public class LoanIT {
         dto.setGame(game);
         dto.setClient(client);
         dto.setLoanDate(LocalDate.now());
+        dto.setReturnDate(LocalDate.now().plusDays(7));
 
         restClient
                 .put()
@@ -131,7 +160,7 @@ public class LoanIT {
                 .toBodilessEntity();
 
         LoanSearchDto searchDto = new LoanSearchDto();
-        searchDto.setPageable(new PageableRequest(0, PAGE_SIZE));
+        searchDto.setPageable(new PageableRequest(0, TOTAL_LOANS));
 
         ResponseEntity<ResponsePage<LoanDto>> response = restClient
                 .post()

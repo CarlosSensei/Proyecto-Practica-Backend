@@ -29,3 +29,5 @@ INSERT INTO loan(game_id, client_id, loan_date, return_date) VALUES (1, 1, '2026
 INSERT INTO loan(game_id, client_id, loan_date, return_date) VALUES (2, 5, '2026-08-11', '2026-08-24');
 INSERT INTO loan(game_id, client_id, loan_date, return_date) VALUES (3, 4, '2026-08-01', '2026-08-10');
 INSERT INTO loan(game_id, client_id, loan_date, return_date) VALUES (5, 2, '2026-09-07', '2026-09-10');
+INSERT INTO loan(game_id, client_id, loan_date, return_date) VALUES (5, 1, '2026-09-05', '2026-09-15');
+

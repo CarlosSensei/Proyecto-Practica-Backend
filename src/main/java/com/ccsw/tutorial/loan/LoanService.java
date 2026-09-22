@@ -5,8 +5,6 @@ import com.ccsw.tutorial.loan.model.LoanDto;
 import com.ccsw.tutorial.loan.model.LoanSearchDto;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public interface LoanService {
 
     // Metodo para recuperar un listado paginado

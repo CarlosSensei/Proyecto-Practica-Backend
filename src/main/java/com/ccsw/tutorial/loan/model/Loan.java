@@ -25,11 +25,12 @@ public class Loan {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @Column(name = "loan_date")
+    @Column(name = "loan_date", nullable = false)
     private LocalDate loanDate;
 
-    @Column(name = "return_date")
+    @Column(name = "return_date", nullable = false)
     private LocalDate returnDate;
+
 
     // Getters y Setters
 
@@ -72,8 +73,5 @@ public class Loan {
     public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
     }
-
-
-
 
 }

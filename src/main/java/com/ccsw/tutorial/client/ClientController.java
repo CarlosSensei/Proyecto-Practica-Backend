@@ -13,6 +13,7 @@ import java.util.List;
 
 @Tag(name = "client", description = "API de client" )
 @RestController
+@RequestMapping("/client")
 @CrossOrigin(origins = "*")
 public class ClientController {
 
@@ -24,7 +25,7 @@ public class ClientController {
 
     // Metodo para recuperar todos los clientes
     @Operation(summary = "find", description = "Method that return a list of Clients")
-    @GetMapping("/client")
+    @GetMapping
     public ResponseEntity<List<ClientDto>> findClients() {
 
         List<ClientDto> dtoList = this.clientService.findAll()
@@ -38,8 +39,9 @@ public class ClientController {
 
     // Metodo para crear o actualizar un cliente
     @Operation(summary = "Save or Update", description = "Method that saves or updates a Category")
-    @RequestMapping(path = { "", "/{id}" }, method = RequestMethod.PUT)
-    public void save(@PathVariable(name = "id", required = false) Long id, @RequestBody ClientDto dto) {
+    @PutMapping({ "", "/{id}" })
+    public void save(@PathVariable(required = false) Long id,
+                     @RequestBody ClientDto dto) {
 
         this.clientService.save(id, dto);
     }

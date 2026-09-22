@@ -27,7 +27,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public List<Client> findAll() {
 
-        return (List<Client>) this.clientRepository.findAll();
+        return this.clientRepository.findAllByOrderByIdAsc();
     }
 
     @Override
@@ -39,7 +39,16 @@ public class ClientServiceImpl implements ClientService {
             client = new Client();
         } else {
             client = this.get(id);
+
+            if (client == null) {
+                throw new RuntimeException("Client with id " + id + " not found");
+            }
+
         }
+
+        client.setName(dto.getName());
+
+        this.clientRepository.save(client);
     }
 
     @Override

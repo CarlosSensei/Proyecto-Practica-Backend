@@ -36,12 +36,21 @@ public class ClientServiceImpl implements ClientService {
         Client client;
 
         if (id == null) {
+            if(clientRepository.existsByNameIgnoreCase(dto.getName())) {
+                throw new IllegalArgumentException("Client name already exists");
+            }
+
             client = new Client();
         } else {
             client = this.get(id);
 
             if (client == null) {
                 throw new RuntimeException("Client with id " + id + " not found");
+            }
+
+            Client existingClient = clientRepository.findByNameIgnoreCase(dto.getName());
+            if (existingClient != null && !existingClient.getId().equals(id)) {
+                throw new IllegalArgumentException("Client name already exists");
             }
 
         }

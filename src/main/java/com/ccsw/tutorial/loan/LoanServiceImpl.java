@@ -32,8 +32,40 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Page<Loan> findAll(LoanSearchDto loanSearchDto) {
 
-        return this.loanRepository.findAll(loanSearchDto.getPageable().getPageable());
+        if (loanSearchDto.getGameId() != null
+                && loanSearchDto.getClientId() != null) {
 
+            return loanRepository.findByGameIdAndClientId(
+                    loanSearchDto.getGameId(),
+                    loanSearchDto.getClientId(),
+                    loanSearchDto.getPageable().getPageable());
+        }
+
+        if (loanSearchDto.getGameId() != null) {
+
+            return loanRepository.findByGameId(
+                    loanSearchDto.getGameId(),
+                    loanSearchDto.getPageable().getPageable());
+        }
+
+        if (loanSearchDto.getClientId() != null) {
+
+            return loanRepository.findByClientId(
+                    loanSearchDto.getClientId(),
+                    loanSearchDto.getPageable().getPageable());
+        }
+
+        if (loanSearchDto.getLoanDate() != null) {
+
+            return loanRepository
+                    .findByLoanDateLessThanEqualAndReturnDateGreaterThanEqual(
+                            loanSearchDto.getLoanDate(),
+                            loanSearchDto.getLoanDate(),
+                            loanSearchDto.getPageable().getPageable());
+        }
+
+        return loanRepository.findAll(
+                loanSearchDto.getPageable().getPageable());
     }
 
     public void validateLoan(Loan loan) {
@@ -112,10 +144,10 @@ public class LoanServiceImpl implements LoanService {
         }
 
         loan.setGame(gameRepository.findById(data.getGame().getId())
-                .orElseThrow(() -> new RuntimeException("Game not found")));
+                .orElseThrow(() -> new EntityNotFoundException("Game not found")));
 
         loan.setClient(clientRepository.findById(data.getClient().getId())
-                .orElseThrow(() -> new RuntimeException("Client not found")));
+                .orElseThrow(() -> new EntityNotFoundException("Client not found")));
 
         loan.setLoanDate(data.getLoanDate());
         loan.setReturnDate(data.getReturnDate());

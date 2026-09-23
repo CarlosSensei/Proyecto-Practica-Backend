@@ -4,7 +4,7 @@ public class ClientDto {
 
     private Long id;
 
-    private String Name;
+    private String name;
 
     // Getters y Setters
 
@@ -17,11 +17,11 @@ public class ClientDto {
     }
 
     public String getName() {
-        return this.Name;
+        return this.name;
     }
 
     public void setName(String name) {
-        this.Name = name;
+        this.name = name;
     }
 
 }

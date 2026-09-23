@@ -10,6 +10,28 @@ import java.time.LocalDate;
 
 public interface LoanRepository extends JpaRepository<Loan, Long> {
 
+    Page<Loan> findByGameTitleContainingIgnoreCase(
+            String title,
+            Pageable pageable);
+
+    Page<Loan> findByGameId(
+            Long gameId,
+            Pageable pageable);
+
+    Page<Loan> findByClientId(
+            Long clientId,
+            Pageable pageable);
+
+    Page<Loan> findByGameIdAndClientId(
+            Long gameId,
+            Long clientId,
+            Pageable pageable);
+
+    Page<Loan> findByLoanDateLessThanEqualAndReturnDateGreaterThanEqual(
+            LocalDate loanDate,
+            LocalDate returnDate,
+            Pageable pageable);
+
     @Query("""
         SELECT COUNT(l)
         FROM Loan l

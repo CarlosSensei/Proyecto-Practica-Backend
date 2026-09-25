@@ -15,7 +15,7 @@ public class Client {
     @Column(name = "name", nullable = false,  length = 50, unique = true)
     private String name;
 
-    // Getters y Setters
+    // Getters y Setters de id y name
 
     public Long getId() {
         return this.id;

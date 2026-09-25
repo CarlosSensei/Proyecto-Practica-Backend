@@ -11,10 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * @author ccsw
- *
- */
+// @author ccsw
+
 @Service
 @Transactional
 public class AuthorServiceImpl implements AuthorService {
@@ -22,27 +20,21 @@ public class AuthorServiceImpl implements AuthorService {
     @Autowired
     AuthorRepository authorRepository;
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public Author get(Long id) {
 
         return this.authorRepository.findById(id).orElse(null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    //{@inheritDoc}
     @Override
     public Page<Author> findPage(AuthorSearchDto dto) {
 
         return this.authorRepository.findAll(dto.getPageable().getPageable());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public void save(Long id, AuthorDto data) {
 
@@ -59,9 +51,7 @@ public class AuthorServiceImpl implements AuthorService {
         this.authorRepository.save(author);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public void delete(Long id) throws Exception {
 
@@ -72,13 +62,11 @@ public class AuthorServiceImpl implements AuthorService {
         this.authorRepository.deleteById(id);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public List<Author> findAll() {
 
-        return (List<Author>) this.authorRepository.findAll();
+        return this.authorRepository.findAll();
     }
 
 }

@@ -1,16 +1,12 @@
 package com.ccsw.tutorial.loan;
 
-
 import com.ccsw.tutorial.client.ClientRepository;
-import com.ccsw.tutorial.client.ClientService;
 import com.ccsw.tutorial.game.GameRepository;
 import com.ccsw.tutorial.loan.model.Loan;
 import com.ccsw.tutorial.loan.model.LoanDto;
 import com.ccsw.tutorial.loan.model.LoanSearchDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +16,19 @@ import java.time.LocalDate;
 @Transactional
 public class LoanServiceImpl implements LoanService {
 
-    @Autowired
-    private LoanRepository loanRepository;
+    private final LoanRepository loanRepository;
+    private final ClientRepository clientRepository;
+    private final GameRepository gameRepository;
 
-    @Autowired
-    private ClientRepository clientRepository;
+    public LoanServiceImpl(LoanRepository loanRepository,
+            ClientRepository clientRepository,
+            GameRepository gameRepository) {
 
-    @Autowired
-    private GameRepository gameRepository;
+        this.loanRepository = loanRepository;
+        this.clientRepository = clientRepository;
+        this.gameRepository = gameRepository;
+    }
+
 
     @Override
     public Page<Loan> findAll(LoanSearchDto loanSearchDto) {
@@ -74,7 +75,7 @@ public class LoanServiceImpl implements LoanService {
         LocalDate loanDate = loan.getLoanDate();
         LocalDate returnDate = loan.getReturnDate();
 
-        if (loan.getLoanDate() == null || loan.getReturnDate() == null) {
+        if (loanDate == null || returnDate == null) {
             throw new IllegalArgumentException(
                     "Loan date and return date are mandatory");
         }
@@ -87,46 +88,14 @@ public class LoanServiceImpl implements LoanService {
             throw new IllegalArgumentException("Cannot return the game after 14 days");
         }
 
-        if (id == null) {
+        if (loanRepository.countActiveLoans(loan.getClient().getId(), id, loanDate, returnDate) >= 2) {
 
-            if (loanRepository.countActiveLoans(
-                    loan.getClient().getId(),
-                    loanDate,
-                    returnDate) >= 2) {
+            throw new IllegalArgumentException("Client already has 2 active loans");
+        }
 
-                throw new IllegalArgumentException(
-                        "Client already has 2 active loans");
-            }
+        if (loanRepository.countOverlappingLoans(loan.getGame().getId(), id, loanDate, returnDate) > 0) {
 
-            if (loanRepository.countOverlappingLoans(
-                    loan.getGame().getId(),
-                    loanDate,
-                    returnDate) > 0) {
-
-                throw new IllegalArgumentException(
-                        "Game already loaned in these dates");
-            }
-        } else {
-
-            if (loanRepository.countActiveLoansExcludingId(
-                    loan.getClient().getId(),
-                    id,
-                    loanDate,
-                    returnDate) >= 2) {
-
-                throw new IllegalArgumentException(
-                        "Client already has 2 active loans");
-            }
-
-            if (loanRepository.countOverlappingLoansExcludingId(
-                    loan.getGame().getId(),
-                    id,
-                    loanDate,
-                    returnDate) > 0) {
-
-                throw new IllegalArgumentException(
-                        "Game already loaned in these dates");
-            }
+            throw new IllegalArgumentException("Game already loaned in these dates");
         }
 
     }
@@ -139,19 +108,15 @@ public class LoanServiceImpl implements LoanService {
         if (id == null) {
             loan = new Loan();
         } else {
-            loan = this.loanRepository.findById(id)
-                    .orElseThrow(EntityNotFoundException::new);
+            loan = this.loanRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         }
 
-        loan.setGame(gameRepository.findById(data.getGame().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Game not found")));
+        loan.setGame(gameRepository.findById(data.getGame().getId()).orElseThrow(() -> new EntityNotFoundException("Game not found")));
 
-        loan.setClient(clientRepository.findById(data.getClient().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found")));
+        loan.setClient(clientRepository.findById(data.getClient().getId()).orElseThrow(() -> new EntityNotFoundException("Client not found")));
 
         loan.setLoanDate(data.getLoanDate());
         loan.setReturnDate(data.getReturnDate());
-
 
         validateLoan(loan);
 
@@ -161,12 +126,11 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public void delete(Long id) throws Exception {
 
-        if (this.loanRepository.findById(id).orElse(null) == null) {
-            throw new Exception("Not exists");
+        if (!loanRepository.existsById(id)) {
+            throw new EntityNotFoundException("Loan not found");
         }
 
-        this.loanRepository.deleteById(id);
-
+        loanRepository.deleteById(id);
     }
 
 }

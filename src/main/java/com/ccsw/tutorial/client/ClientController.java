@@ -34,7 +34,6 @@ public class ClientController {
                 .toList();
 
         return ResponseEntity.ok(dtoList);
-
     }
 
     // Metodo para crear o actualizar un cliente

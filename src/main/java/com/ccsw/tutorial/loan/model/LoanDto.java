@@ -9,51 +9,31 @@ import java.time.LocalDate;
 public class LoanDto {
 
     private Long id;
-    private ClientDto client;
     private GameDto game;
+    private ClientDto client;
     private LocalDate loanDate;
     private LocalDate returnDate;
 
     // Getters y Stetters
-    public Long getId() {
-        return this.id;
-    }
+    public Long getId() { return this.id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
 
-    public ClientDto getClient() {
-        return this.client;
-    }
+    public GameDto getGame() { return this.game; }
 
-    public void setClient(ClientDto client) {
-        this.client = client;
-    }
+    public void setGame(GameDto game) { this.game = game; }
 
-    public GameDto getGame() {
-        return this.game;
-    }
+    public ClientDto getClient() { return this.client; }
 
-    public void setGame(GameDto game) {
-        this.game = game;
-    }
+    public void setClient(ClientDto client) { this.client = client; }
 
-    public LocalDate getLoanDate() {
-        return this.loanDate;
-    }
+    public LocalDate getLoanDate() { return this.loanDate; }
 
-    public void setLoanDate(LocalDate loanDate) {
-        this.loanDate = loanDate;
-    }
+    public void setLoanDate(LocalDate loanDate) { this.loanDate = loanDate; }
 
-    public LocalDate getReturnDate() {
-        return this.returnDate;
-    }
+    public LocalDate getReturnDate() { return this.returnDate; }
 
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
+    public void setReturnDate(LocalDate returnDate) { this.returnDate = returnDate; }
 
 
 }

@@ -4,6 +4,7 @@ import com.ccsw.tutorial.common.pagination.PageableRequest;
 
 import java.time.LocalDate;
 
+// Modelo de busqueda de prestamos
 public class LoanSearchDto {
 
     private String title;
@@ -16,6 +17,7 @@ public class LoanSearchDto {
 
     private PageableRequest pageable;
 
+    // Getters y Setters
     public String getTitle() {
         return title;
     }

@@ -8,10 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-/**
- * @author ccsw
- *
- */
+// @author ccsw
+
 public interface GameRepository extends CrudRepository<Game, Long>, JpaSpecificationExecutor<Game> {
 
     @Override

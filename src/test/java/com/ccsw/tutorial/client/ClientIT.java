@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// Metodos de tests unitarios
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ClientIT {
@@ -43,76 +44,61 @@ class ClientIT {
         this.restClient = RestClient.create(LOCALHOST + port);
     }
 
+    // Test para recuperar todos los clientes
     @Test
     void findAllShouldReturnAllClients() {
 
-        List<ClientDto> response = restClient.get()
-                .uri(SERVICE_PATH)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+        List<ClientDto> response = restClient.get().uri(SERVICE_PATH)
+                .retrieve().body(new ParameterizedTypeReference<>() {});
 
         assertNotNull(response);
         assertEquals(6, response.size());
     }
 
+    // Test de save sin id crea un nuevo cliente
     @Test
     public void saveWithoutIdShouldCreateNewClient() {
 
         ClientDto clientDto = new ClientDto();
         clientDto.setName(NEW_CLIENT_NAME);
 
-        restClient.put()
-                .uri(SERVICE_PATH)
-                .body(clientDto)
-                .retrieve()
-                .toBodilessEntity();
+        restClient.put().uri(SERVICE_PATH).body(clientDto).retrieve().toBodilessEntity();
 
-        ResponseEntity<List<ClientDto>> response = restClient.get()
-                .uri(SERVICE_PATH)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {});
+        ResponseEntity<List<ClientDto>> response = restClient.get().uri(SERVICE_PATH)
+                .retrieve().toEntity(new ParameterizedTypeReference<>() {});
 
         assertNotNull(response);
         assertEquals(7, response.getBody().size());
 
         ClientDto clientSearch = response.getBody().stream()
                 .filter(item -> NEW_CLIENT_NAME.equals(item.getName()))
-                .findFirst()
-                .orElse(null);
+                .findFirst().orElse(null);
 
         assertNotNull(clientSearch);
         assertEquals(NEW_CLIENT_NAME, clientSearch.getName());
-
     }
 
+    // Test de save con id modifica el cliente existente
     @Test
     public void modifyWithExistIdShouldModifyClient() {
 
         ClientDto clientDto = new ClientDto();
         clientDto.setName(NEW_CLIENT_NAME);
 
-        restClient.put()
-                .uri(SERVICE_PATH + "/" + MODIFY_CLIENT_ID)
-                .body(clientDto)
-                .retrieve()
-                .toBodilessEntity();
+        restClient.put().uri(SERVICE_PATH + "/" + MODIFY_CLIENT_ID)
+                .body(clientDto).retrieve().toBodilessEntity();
 
-        ResponseEntity<List<ClientDto>> response = restClient.get()
-                .uri(SERVICE_PATH)
-                .retrieve()
+        ResponseEntity<List<ClientDto>> response = restClient.get().uri(SERVICE_PATH).retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {});
 
         assertNotNull(response);
         assertEquals(6, response.getBody().size());
 
         ClientDto clientSearch = response.getBody().stream()
-                .filter(item -> item.getId().equals(MODIFY_CLIENT_ID))
-                .findFirst()
-                .orElse(null);
+                .filter(item -> item.getId().equals(MODIFY_CLIENT_ID)).findFirst().orElse(null);
 
         assertNotNull(clientSearch);
         assertEquals(NEW_CLIENT_NAME, clientSearch.getName());
-
     }
 
     @Test
@@ -121,58 +107,42 @@ class ClientIT {
         ClientDto dto = new ClientDto();
         dto.setName(NEW_CLIENT_NAME);
 
-        HttpServerErrorException exception =
-                assertThrows(HttpServerErrorException.class, () ->
-                        restClient.put()
-                                .uri(SERVICE_PATH + "/" + NEW_CLIENT_ID)
-                                .body(dto)
-                                .retrieve()
-                                .toBodilessEntity());
+        HttpServerErrorException exception = assertThrows(HttpServerErrorException.class, () -> restClient.put()
+                .uri(SERVICE_PATH + "/" + NEW_CLIENT_ID).body(dto).retrieve().toBodilessEntity());
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
     }
 
+    // Test de restriccion de save con nombre duplicado
     @Test
     public void saveWithDuplicatedNameShouldReturnError() {
 
         ClientDto dto = new ClientDto();
         dto.setName("Juan Rodriguez");
 
-        assertThrows(RestClientResponseException.class, () ->
-                restClient.put()
-                        .uri(SERVICE_PATH)
-                        .body(dto)
-                        .retrieve()
-                        .toBodilessEntity()
-        );
+        assertThrows(RestClientResponseException.class, () -> restClient.put()
+                .uri(SERVICE_PATH).body(dto).retrieve().toBodilessEntity());
     }
 
+    // Test de borrado de cliente
     @Test
     public void deleteWithExistIdShouldDeleteClient() {
 
-        restClient.delete()
-                .uri(SERVICE_PATH + "/" + DELETE_CLIENT_ID)
-                .retrieve()
-                .toBodilessEntity();
+        restClient.delete().uri(SERVICE_PATH + "/" + DELETE_CLIENT_ID).retrieve().toBodilessEntity();
 
         ResponseEntity<List<ClientDto>> response = restClient.get()
-                .uri(SERVICE_PATH)
-                .retrieve()
-                .toEntity(responseType);
+                .uri(SERVICE_PATH).retrieve().toEntity(responseType);
 
         assertNotNull(response);
         assertEquals(5, response.getBody().size());
     }
 
+    // Test de borrado de cliente inexistente
     @Test
     public void deleteWithNotExistsIdShouldInternalError() {
 
-        assertThrows(HttpServerErrorException.InternalServerError.class, () ->
-                restClient.delete()
-                        .uri(SERVICE_PATH + "/" + NEW_CLIENT_ID)
-                        .retrieve()
-                        .toBodilessEntity()
-        );
+        assertThrows(HttpServerErrorException.InternalServerError.class, () -> restClient.delete()
+                .uri(SERVICE_PATH + "/" + NEW_CLIENT_ID).retrieve().toBodilessEntity());
     }
 
 }

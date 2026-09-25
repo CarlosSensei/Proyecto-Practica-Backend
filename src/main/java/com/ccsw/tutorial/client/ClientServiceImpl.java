@@ -1,6 +1,5 @@
 package com.ccsw.tutorial.client;
 
-import com.ccsw.tutorial.category.CategoryService;
 import com.ccsw.tutorial.client.model.Client;
 import com.ccsw.tutorial.client.model.ClientDto;
 import jakarta.transaction.Transactional;
@@ -16,12 +15,11 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    // Implemento los metodos del interface
+    // Implemento los metodos del interface ClientService
     @Override
     public Client get(Long id) {
 
         return this.clientRepository.findById(id).orElse(null);
-
     }
 
     @Override
@@ -36,11 +34,13 @@ public class ClientServiceImpl implements ClientService {
         Client client;
 
         if (id == null) {
+
             if(clientRepository.existsByNameIgnoreCase(dto.getName())) {
                 throw new IllegalArgumentException("Client name already exists");
             }
 
             client = new Client();
+
         } else {
             client = this.get(id);
 
@@ -64,7 +64,7 @@ public class ClientServiceImpl implements ClientService {
     public void delete(Long id) throws Exception {
 
         if(this.get(id) == null){
-            throw new Exception("Not exists");
+            throw new Exception("This client dont exists");
         }
 
         this.clientRepository.deleteById(id);

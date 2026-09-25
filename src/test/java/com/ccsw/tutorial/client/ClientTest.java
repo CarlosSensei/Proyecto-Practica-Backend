@@ -15,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+// Test de duplicados con Mockito
 @ExtendWith(MockitoExtension.class)
 public class ClientTest {
 
@@ -27,8 +28,10 @@ public class ClientTest {
     @InjectMocks
     private ClientServiceImpl clientService;
 
+    // Test de devolver toda la lista de clientes
     @Test
     public void findAllShouldReturnAllClients() {
+
         List<Client> clients = new ArrayList<>();
         clients.add(mock(Client.class));
 
@@ -40,6 +43,7 @@ public class ClientTest {
         assertEquals(clients.size(), result.size());
     }
 
+    // Test de save de creacion de cliente con id inexistente
     @Test
     public void saveNotExistsClientIdShouldInsert() {
 
@@ -53,13 +57,14 @@ public class ClientTest {
         verify(clientRepository).save(captor.capture());
 
         assertEquals(CLIENT_NAME, captor.getValue().getName());
-
     }
 
+    // Test de borrado de cliente existente
     @Test
     public void deleteExistsClientIdShouldDelete() throws Exception {
 
         Client client = mock(Client.class);
+
         when(clientRepository.findById(EXISTS_CLIENT_ID)).thenReturn(Optional.of(client));
 
         clientService.delete(EXISTS_CLIENT_ID);

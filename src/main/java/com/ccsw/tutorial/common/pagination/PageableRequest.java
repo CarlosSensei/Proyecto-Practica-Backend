@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.domain.*;
 
 import java.io.Serializable;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//
 public class PageableRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private int pageNumber;
@@ -30,14 +33,6 @@ public class PageableRequest implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public PageableRequest(int pageNumber, int pageSize, List<SortRequest> sort) {
-
-        this();
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
-        this.sort = sort;
-    }
-
     public int getPageNumber() {
         return pageNumber;
     }
@@ -54,22 +49,21 @@ public class PageableRequest implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public List<SortRequest> getSort() {
-        return sort;
-    }
+    public List<SortRequest> getSort() { return sort; }
 
-    public void setSort(List<SortRequest> sort) {
-        this.sort = sort;
-    }
+    public void setSort(List<SortRequest> sort) { this.sort = sort; }
 
     @JsonIgnore
     public Pageable getPageable() {
 
-        return PageRequest.of(this.pageNumber, this.pageSize, Sort.by(sort.stream().map(e -> new Sort.Order(e.getDirection(), e.getProperty())).collect(Collectors.toList())));
+        return PageRequest.of(this.pageNumber, this.pageSize, Sort.by(sort.stream()
+                .map(e -> new Sort.Order(e.getDirection(), e.getProperty()))
+                .collect(Collectors.toList())));
     }
 
     public static class SortRequest implements Serializable {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private String property;

@@ -6,7 +6,7 @@ public class ClientDto {
 
     private String name;
 
-    // Getters y Setters
+    // Getters y Setters de id y name
 
     public Long getId() {
         return this.id;

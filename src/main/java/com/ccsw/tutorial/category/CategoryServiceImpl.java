@@ -8,10 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * @author ccsw
- *
- */
+// @author ccsw
+
 @Service
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
@@ -19,27 +17,21 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public Category get(Long id) {
 
         return this.categoryRepository.findById(id).orElse(null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public List<Category> findAll() {
 
         return (List<Category>) this.categoryRepository.findAll();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public void save(Long id, CategoryDto dto) {
 
@@ -56,9 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository.save(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     @Override
     public void delete(Long id) throws Exception {
 

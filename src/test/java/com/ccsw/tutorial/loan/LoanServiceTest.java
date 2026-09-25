@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+// Test de Mockito sobre el service
 @ExtendWith(MockitoExtension.class)
 class LoanServiceTest {
 
@@ -26,6 +27,7 @@ class LoanServiceTest {
     @InjectMocks
     private LoanServiceImpl loanService;
 
+    // Test de restriccion de 14 dias max de prestamo
     @Test
     void validateLoanMoreThan14DaysShouldThrowException() {
 
@@ -35,14 +37,12 @@ class LoanServiceTest {
         loan.setReturnDate(LocalDate.of(2026, 9, 20));
 
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class,
-                        () -> loanService.validateLoan(loan));
+                assertThrows(IllegalArgumentException.class,() -> loanService.validateLoan(loan));
 
-        assertEquals(
-                "Cannot return the game after 14 days",
-                exception.getMessage());
+        assertEquals("Cannot return the game after 14 days", exception.getMessage());
     }
 
+    // Test de restriccion de fecha de retorno previa a fecha de prestamo
     @Test
     void validateLoanWithReturnDateBeforeLoanDateShouldThrowException() {
 
@@ -52,14 +52,12 @@ class LoanServiceTest {
         loan.setReturnDate(LocalDate.of(2026, 9, 5));
 
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class,
-                        () -> loanService.validateLoan(loan));
+                assertThrows(IllegalArgumentException.class, () -> loanService.validateLoan(loan));
 
-        assertEquals(
-                "Invalid dates: 2026-09-05 cannot be before 2026-09-10",
-                exception.getMessage());
+        assertEquals("Invalid dates: 2026-09-05 cannot be before 2026-09-10", exception.getMessage());
     }
 
+    // Test de metodo de Validacion de prestamos no da error
     @Test
     void validateLoanShouldPass() {
 
@@ -76,10 +74,10 @@ class LoanServiceTest {
         loan.setLoanDate(LocalDate.of(2026, 9, 1));
         loan.setReturnDate(LocalDate.of(2026, 9, 10));
 
-        assertDoesNotThrow(
-                () -> loanService.validateLoan(loan));
+        assertDoesNotThrow(() -> loanService.validateLoan(loan));
     }
 
+    // Test de restriccion de más de dos prestamos activos
     @Test
     void validateLoanWithTwoActiveLoansShouldThrowException() {
 
@@ -96,22 +94,16 @@ class LoanServiceTest {
         loan.setLoanDate(LocalDate.of(2026, 9, 8));
         loan.setReturnDate(LocalDate.of(2026, 9, 12));
 
-        when(loanRepository.countActiveLoans(
-                anyLong(),
-                any(LocalDate.class),
-                any(LocalDate.class)))
+        when(loanRepository.countActiveLoans(anyLong(), any(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(2L);
 
         IllegalArgumentException exception =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> loanService.validateLoan(loan));
+                assertThrows(IllegalArgumentException.class, () -> loanService.validateLoan(loan));
 
-        assertEquals(
-                "Client already has 2 active loans",
-                exception.getMessage());
+        assertEquals("Client already has 2 active loans", exception.getMessage());
     }
 
+    // Test de restriccion de prestamo con juego ya prestado
     @Test
     void validateLoanWithGameAlreadyLoanedShouldThrowException() {
 
@@ -128,20 +120,13 @@ class LoanServiceTest {
         loan.setLoanDate(LocalDate.of(2026, 9, 5));
         loan.setReturnDate(LocalDate.of(2026, 9, 8));
 
-        when(loanRepository.countOverlappingLoans(
-                anyLong(),
-                any(LocalDate.class),
-                any(LocalDate.class)))
+        when(loanRepository.countOverlappingLoans(anyLong(), any(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(1L);
 
         IllegalArgumentException exception =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> loanService.validateLoan(loan));
+                assertThrows(IllegalArgumentException.class, () -> loanService.validateLoan(loan));
 
-        assertEquals(
-                "Game already loaned in these dates",
-                exception.getMessage());
+        assertEquals("Game already loaned in these dates", exception.getMessage());
     }
 
 }

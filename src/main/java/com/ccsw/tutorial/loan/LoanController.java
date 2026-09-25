@@ -39,7 +39,7 @@ public class LoanController {
 
     }
 
-    //Metodo para crear o recuperar un @link loan @param id PK de la entidad
+    //Metodo para recuperar un @link loan @param id PK de la entidad
     @Operation(summary = "Save or Update", description = "Method that saves or updates a Loan")
     @PutMapping("/{id}")
     public void save(@PathVariable(name = "id", required = false) Long id, @RequestBody LoanDto loanDto) {
@@ -47,6 +47,8 @@ public class LoanController {
         this.loanService.save(id, loanDto);
 
     }
+
+    //Metodo para crear un nuevo @link loan.
     @PutMapping
     public void save(@RequestBody LoanDto loanDto) {
         this.loanService.save(null, loanDto);

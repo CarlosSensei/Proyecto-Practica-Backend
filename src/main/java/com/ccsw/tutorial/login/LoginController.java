@@ -20,6 +20,8 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDto dto) {
 
+        System.out.println("LOGIN INVOCADO");
+
         if ("admin".equals(dto.getUser()) && "admin".equals(dto.getPassword())) {
 
             String token = jwtUtil.generateToken(dto.getUser());

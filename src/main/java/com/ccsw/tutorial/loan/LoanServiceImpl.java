@@ -1,6 +1,7 @@
 package com.ccsw.tutorial.loan;
 
 import com.ccsw.tutorial.client.ClientRepository;
+import com.ccsw.tutorial.common.criteria.SearchCriteria;
 import com.ccsw.tutorial.game.GameRepository;
 import com.ccsw.tutorial.loan.model.Loan;
 import com.ccsw.tutorial.loan.model.LoanDto;
@@ -8,9 +9,11 @@ import com.ccsw.tutorial.loan.model.LoanSearchDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional
@@ -33,70 +36,40 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Page<Loan> findAll(LoanSearchDto loanSearchDto) {
 
-        if (loanSearchDto.getGameId() != null
-                && loanSearchDto.getClientId() != null) {
+        LoanSpecification gameSpec =
+                new LoanSpecification(new SearchCriteria("game.id", ":", loanSearchDto.getGameId()));
 
-            return loanRepository.findByGameIdAndClientId(
-                    loanSearchDto.getGameId(),
-                    loanSearchDto.getClientId(),
-                    loanSearchDto.getPageable().getPageable());
-        }
+        LoanSpecification clientSpec =
+                new LoanSpecification(new SearchCriteria("client.id", ":", loanSearchDto.getClientId()));
 
-        if (loanSearchDto.getGameId() != null) {
-
-            return loanRepository.findByGameId(
-                    loanSearchDto.getGameId(),
-                    loanSearchDto.getPageable().getPageable());
-        }
-
-        if (loanSearchDto.getClientId() != null) {
-
-            return loanRepository.findByClientId(
-                    loanSearchDto.getClientId(),
-                    loanSearchDto.getPageable().getPageable());
-        }
+        Specification<Loan> specification = Specification.where(gameSpec).and(clientSpec);
 
         if (loanSearchDto.getLoanDate() != null) {
 
-            return loanRepository
-                    .findByLoanDateLessThanEqualAndReturnDateGreaterThanEqual(
-                            loanSearchDto.getLoanDate(),
-                            loanSearchDto.getLoanDate(),
-                            loanSearchDto.getPageable().getPageable());
+            Specification<Loan> loanDateSpec =
+                    new LoanSpecification(new SearchCriteria("loanDate","<=", loanSearchDto.getLoanDate()));
+
+            Specification<Loan> returnDateSpec =
+                    new LoanSpecification(new SearchCriteria("returnDate",">=", loanSearchDto.getLoanDate()));
+
+            specification = specification.and(loanDateSpec).and(returnDateSpec);
         }
 
-        return loanRepository.findAll(
-                loanSearchDto.getPageable().getPageable());
+        return loanRepository.findAll(specification, loanSearchDto.getPageable().getPageable());
     }
 
     public void validateLoan(Loan loan) {
 
-        Long id = loan.getId();
         LocalDate loanDate = loan.getLoanDate();
         LocalDate returnDate = loan.getReturnDate();
 
-        if (loanDate == null || returnDate == null) {
-            throw new IllegalArgumentException(
-                    "Loan date and return date are mandatory");
-        }
+        validateDates(loanDate, returnDate);
 
-        if (loanDate.isAfter(returnDate)) {
-            throw new IllegalArgumentException("Invalid dates: " + returnDate + " cannot be before " + loanDate);
-        }
+        validateMaxDuration(loanDate, returnDate);
 
-        if (returnDate.isAfter(loanDate.plusDays(14))) {
-            throw new IllegalArgumentException("Cannot return the game after 14 days");
-        }
+        validateClientLoanLimit(loan);
 
-        if (loanRepository.countActiveLoans(loan.getClient().getId(), id, loanDate, returnDate) >= 2) {
-
-            throw new IllegalArgumentException("Client already has 2 active loans");
-        }
-
-        if (loanRepository.countOverlappingLoans(loan.getGame().getId(), id, loanDate, returnDate) > 0) {
-
-            throw new IllegalArgumentException("Game already loaned in these dates");
-        }
+        validateGameAvailability(loan);
 
     }
 
@@ -131,6 +104,62 @@ public class LoanServiceImpl implements LoanService {
         }
 
         loanRepository.deleteById(id);
+    }
+
+    private void validateDates(LocalDate loanDate, LocalDate returnDate) {
+
+        if (loanDate == null || returnDate == null) {
+
+            throw new IllegalArgumentException("Loan date and return are mandatory");
+        }
+
+        if (loanDate.isAfter(returnDate)) {
+
+            throw new IllegalArgumentException("Invalid dates: " + returnDate + " cannot be before " + loanDate);
+        }
+
+    }
+
+    private void validateMaxDuration(LocalDate loanDate, LocalDate returnDate) {
+
+        if (loanDate.isAfter(returnDate.plusDays(14))) {
+
+            throw new IllegalArgumentException("Cannot return the game after 14 days");
+        }
+    }
+
+    private void validateClientLoanLimit(Loan loan) {
+
+        List<Loan> activeLoans = loanRepository.findByClientId(loan.getClient().getId());
+
+        long activeLoansCount = activeLoans.stream().filter(existing -> !existing.getId().equals(loan.getId()))
+                .filter(existing -> overlap(loan.getLoanDate(),
+                        loan.getReturnDate(), existing.getLoanDate(), existing.getReturnDate()))
+                .count();
+
+        if (activeLoansCount >= 2) {
+
+            throw new IllegalArgumentException("Client already has 2 active loans");
+        }
+    }
+
+    private void validateGameAvailability(Loan loan) {
+
+        List<Loan> gameLoans = loanRepository.findByGameId(loan.getGame().getId());
+
+        boolean overlapExists = gameLoans.stream().filter(existing -> !existing.getId().equals(loan.getId()))
+                .anyMatch(existing -> overlap(loan.getLoanDate(), loan.getReturnDate(),
+                        existing.getLoanDate(), existing.getReturnDate()));
+
+        if (overlapExists) {
+
+            throw new IllegalArgumentException("Game already loaned in these dates");
+        }
+    }
+
+    private boolean overlap(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
+
+        return !end1.isBefore(start2) && !start1.isAfter(end2);
     }
 
 }

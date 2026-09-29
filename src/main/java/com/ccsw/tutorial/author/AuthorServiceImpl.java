@@ -56,7 +56,7 @@ public class AuthorServiceImpl implements AuthorService {
     public void delete(Long id) throws Exception {
 
         if(this.get(id) == null){
-            throw new Exception("Not exists");
+            throw new Exception("Author not exists");
         }
 
         this.authorRepository.deleteById(id);

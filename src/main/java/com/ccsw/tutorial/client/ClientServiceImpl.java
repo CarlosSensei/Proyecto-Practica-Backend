@@ -2,6 +2,8 @@ package com.ccsw.tutorial.client;
 
 import com.ccsw.tutorial.client.model.Client;
 import com.ccsw.tutorial.client.model.ClientDto;
+import com.ccsw.tutorial.common.exception.clientNotFoundException;
+import com.ccsw.tutorial.common.exception.clientNameAlreadyExistsException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -40,21 +42,22 @@ public class ClientServiceImpl implements ClientService {
         if (id == null) {
 
             if(clientRepository.existsByNameIgnoreCase(dto.getName())) {
-                throw new IllegalArgumentException("Client name already exists");
+                throw new clientNameAlreadyExistsException();
             }
 
             client = new Client();
 
         } else {
+
             client = this.get(id);
 
             if (client == null) {
-                throw new RuntimeException("Client with id " + id + " not found");
+                throw new clientNotFoundException();
             }
 
             Client existingClient = clientRepository.findByNameIgnoreCase(dto.getName());
             if (existingClient != null && !existingClient.getId().equals(id)) {
-                throw new IllegalArgumentException("Client name already exists");
+                throw new clientNameAlreadyExistsException();
             }
 
         }
@@ -68,7 +71,7 @@ public class ClientServiceImpl implements ClientService {
     public void delete(Long id) throws Exception {
 
         if(this.get(id) == null){
-            throw new Exception("This client dont exists");
+            throw new clientNotFoundException();
         }
 
         this.clientRepository.deleteById(id);

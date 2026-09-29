@@ -53,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(Long id) throws Exception {
 
         if(this.get(id) == null){
-            throw new Exception("Not exists");
+            throw new Exception("Category not exists");
         }
 
         this.categoryRepository.deleteById(id);

@@ -11,6 +11,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(clientNotFoundException.class)
+    public ResponseEntity<String> handleClientNotFound(clientNotFoundException e) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(clientNameAlreadyExistsException.class)
+    public ResponseEntity<String> handleClientNameAlreadyExists(clientNameAlreadyExistsException e) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
 

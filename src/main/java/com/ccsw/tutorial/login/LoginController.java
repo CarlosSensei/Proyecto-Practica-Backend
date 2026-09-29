@@ -20,14 +20,12 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDto dto) {
 
-        System.out.println("LOGIN INVOCADO");
-
         if ("admin".equals(dto.getUser()) && "admin".equals(dto.getPassword())) {
 
             String token = jwtUtil.generateToken(dto.getUser());
             return ResponseEntity.ok(token);
         }
 
-        throw new IllegalArgumentException("Incorrect Username or Password");
+        throw new IllegalArgumentException("Logged in as a Basic User");
     }
 }

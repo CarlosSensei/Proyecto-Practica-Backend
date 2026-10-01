@@ -2,9 +2,11 @@ package com.ccsw.tutorial.client;
 
 import com.ccsw.tutorial.client.model.Client;
 import com.ccsw.tutorial.client.model.ClientDto;
+import com.ccsw.tutorial.client.model.ClientSearchDto;
 import com.ccsw.tutorial.common.exception.clientNotFoundException;
 import com.ccsw.tutorial.common.exception.clientNameAlreadyExistsException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 
@@ -26,6 +28,12 @@ public class ClientServiceImpl implements ClientService {
     public Client get(Long id) {
 
         return this.clientRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Page<Client> findPage(ClientSearchDto dto) {
+
+        return this.clientRepository.findAll(dto.getPageable().getPageable());
     }
 
     @Override

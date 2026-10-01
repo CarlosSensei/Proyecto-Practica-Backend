@@ -2,6 +2,8 @@ package com.ccsw.tutorial.client;
 
 import com.ccsw.tutorial.client.model.Client;
 import com.ccsw.tutorial.client.model.ClientDto;
+import com.ccsw.tutorial.client.model.ClientSearchDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -9,6 +11,9 @@ public interface ClientService {
 
     // Recupera un cliente por id
     Client get(Long id);
+
+    // Metodo para recuperar pagina de clientes
+    Page<Client> findPage(ClientSearchDto dto);
 
     // Recupera todos los clientes.
     List<Client> findAll();

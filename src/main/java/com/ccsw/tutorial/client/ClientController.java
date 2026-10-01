@@ -1,14 +1,20 @@
 package com.ccsw.tutorial.client;
 
+import com.ccsw.tutorial.author.model.AuthorDto;
+import com.ccsw.tutorial.client.model.Client;
 import com.ccsw.tutorial.client.model.ClientDto;
+import com.ccsw.tutorial.client.model.ClientSearchDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Tag(name = "client", description = "API de client" )
@@ -18,22 +24,31 @@ import java.util.List;
 public class ClientController {
 
     @Autowired
-    private ClientService clientService;
+    ClientService clientService;
 
     @Autowired
-    private ModelMapper mapper;
+    ModelMapper mapper;
+
+    // Metodo para recuperar pagina de clientes
+    @Operation(summary = "Find Page", description = "Method to return a page of clients")
+    @PostMapping
+    public Page<ClientDto> findPage(@RequestBody ClientSearchDto dto) {
+
+        Page<Client> page = this.clientService.findPage(dto);
+
+        return new PageImpl<>(page.getContent().stream()
+                .map(e -> mapper.map(e, ClientDto.class))
+                .collect(Collectors.toList()), page.getPageable(), page.getTotalElements());
+    }
 
     // Metodo para recuperar todos los clientes
     @Operation(summary = "find", description = "Method that return a list of Clients")
     @GetMapping
-    public ResponseEntity<List<ClientDto>> findClients() {
+    public List<ClientDto> findAll() {
 
-        List<ClientDto> dtoList = this.clientService.findAll()
-                .stream()
-                .map(e -> mapper.map(e, ClientDto.class))
-                .toList();
+        List<Client> clients =  clientService.findAll();
 
-        return ResponseEntity.ok(dtoList);
+        return clients.stream().map(e -> mapper.map(e, ClientDto.class)).collect(Collectors.toList());
     }
 
     // Metodo para crear o actualizar un cliente
